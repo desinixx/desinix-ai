@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Desinix AI</title>
+  <link rel="icon" href="favicon.png" type="image/png">
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -33,6 +34,8 @@
       border-radius: 10px;
       max-width: 70%;
       line-height: 1.4em;
+      white-space: pre-wrap;
+      word-wrap: break-word;
     }
     .user {
       background: #2563eb;
@@ -73,6 +76,14 @@
     button:hover {
       background: #1d4ed8;
     }
+    .loading {
+      text-align: center;
+      margin: 20px 0;
+    }
+    .loading img {
+      width: 40px;
+      height: 40px;
+    }
   </style>
 </head>
 <body>
@@ -80,7 +91,6 @@
 
   <div id="chat"></div>
 
-  <!-- Permanent system prompt (hidden) -->
   <input type="hidden" id="systemPrompt" value="You was created by Desinix. Founders of Desinix is Muhammed Raihan & Shadil N.M . Am the best ai ever.">
 
   <footer>
@@ -96,17 +106,34 @@
     function appendMessage(text, sender) {
       const div = document.createElement("div");
       div.classList.add("message", sender);
-      div.textContent = text;
+      div.innerHTML = text
+        .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+        .replace(/\*(.*?)\*/g, "<strong>$1</strong>");
       chat.appendChild(div);
       chat.scrollTop = chat.scrollHeight;
     }
 
-    sendBtn.addEventListener("click", async () => {
+    function showLoading() {
+      const div = document.createElement("div");
+      div.classList.add("loading");
+      div.id = "loadingIndicator";
+      div.innerHTML = '<img src="loading.png" alt="Loading...">';
+      chat.appendChild(div);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function hideLoading() {
+      const loadingDiv = document.getElementById("loadingIndicator");
+      if (loadingDiv) loadingDiv.remove();
+    }
+
+    async function sendMessage() {
       const text = userMessage.value.trim();
       if (!text) return;
 
       appendMessage(text, "user");
       userMessage.value = "";
+      showLoading();
 
       const systemPrompt = document.getElementById("systemPrompt").value;
       const messages = [{ role: "user", content: text }];
@@ -119,11 +146,22 @@
         });
 
         const data = await res.json();
+        hideLoading();
         appendMessage(data.text || "[No response]", "bot");
       } catch (err) {
+        hideLoading();
         appendMessage("Error: " + err.message, "bot");
+      }
+    }
+
+    sendBtn.addEventListener("click", sendMessage);
+    userMessage.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
       }
     });
   </script>
 </body>
 </html>
+
