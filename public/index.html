@@ -23,6 +23,7 @@
       text-align: center;
       font-size: 20px;
       font-weight: bold;
+      border-bottom: 1px solid #333; /* Thin line under header */
     }
     #chat {
       flex: 1;
@@ -111,7 +112,7 @@
       animation: spin 1s linear infinite;
     }
   </style>
-</head><hr style="color="white">
+</head>
 <body>
   <header>Desinix AI</header>
 
@@ -129,7 +130,19 @@
     const sendBtn = document.getElementById("sendBtn");
     const userMessage = document.getElementById("userMessage");
 
-    function appendMessage(text, sender) {
+    // 🔹 Load old messages from localStorage
+    let messages = JSON.parse(localStorage.getItem("desinix_chat") || "[]");
+
+    function saveMessages() {
+      localStorage.setItem("desinix_chat", JSON.stringify(messages));
+    }
+
+    function renderMessages() {
+      chat.innerHTML = "";
+      messages.forEach(m => appendMessage(m.text, m.sender, false));
+    }
+
+    function appendMessage(text, sender, save = true) {
       const div = document.createElement("div");
       div.classList.add("message", sender);
 
@@ -161,6 +174,11 @@
         chat.appendChild(div);
         chat.scrollTop = chat.scrollHeight;
       }
+
+      if (save) {
+        messages.push({ text, sender });
+        saveMessages();
+      }
     }
 
     function showLoading() {
@@ -186,13 +204,13 @@
       showLoading();
 
       const systemPrompt = document.getElementById("systemPrompt").value;
-      const messages = [{ role: "user", content: text }];
+      const payload = { messages: [{ role: "user", content: text }], systemPrompt };
 
       try {
         const res = await fetch("/api/generate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ messages, systemPrompt })
+          body: JSON.stringify(payload)
         });
 
         const data = await res.json();
@@ -212,8 +230,11 @@
       }
     });
 
-    // Autofocus input
-    window.onload = () => userMessage.focus();
+    // Autofocus + Render old messages on load
+    window.onload = () => {
+      userMessage.focus();
+      renderMessages();
+    };
   </script>
 </body>
 </html>
