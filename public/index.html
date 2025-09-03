@@ -48,9 +48,6 @@
       color: #111;
       margin-right: auto;
       text-align: left;
-      opacity: 0;
-      transform: translateY(5px);
-      animation: fadeIn 0.4s ease forwards;
     }
     footer {
       display: flex;
@@ -131,11 +128,28 @@
     function appendMessage(text, sender) {
       const div = document.createElement("div");
       div.classList.add("message", sender);
-      div.innerHTML = text
-        .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-        .replace(/\*(.*?)\*/g, "<strong>$1</strong>");
-      chat.appendChild(div);
-      chat.scrollTop = chat.scrollHeight;
+
+      if (sender === "bot") {
+        div.innerHTML = "";
+        chat.appendChild(div);
+        chat.scrollTop = chat.scrollHeight;
+
+        let i = 0;
+        const interval = setInterval(() => {
+          div.innerHTML += text.charAt(i)
+            .replace(/\n/g, "<br>")
+            .replace(/ /g, "&nbsp;");
+          i++;
+          chat.scrollTop = chat.scrollHeight;
+          if (i >= text.length) clearInterval(interval);
+        }, 30); // typing speed (ms per character)
+      } else {
+        div.innerHTML = text
+          .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+          .replace(/\*(.*?)\*/g, "<strong>$1</strong>");
+        chat.appendChild(div);
+        chat.scrollTop = chat.scrollHeight;
+      }
     }
 
     function showLoading() {
