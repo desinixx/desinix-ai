@@ -13,8 +13,8 @@
       display: flex;
       flex-direction: column;
       height: 100vh;
-      background: #191919; /* Dark background */
-      color: #fff; /* White text */
+      background: #191919;
+      color: #fff;
     }
     header {
       background: #111;
@@ -23,7 +23,7 @@
       text-align: center;
       font-size: 20px;
       font-weight: bold;
-      border-bottom: 1px solid #333; /* Thin line under header */
+      border-bottom: 1px solid #333;
     }
     #chat {
       flex: 1;
@@ -67,7 +67,6 @@
       background: #222;
       color: #fff;
     }
-    /* Circular Send Button */
     button {
       margin-left: 10px;
       width: 48px;
@@ -89,8 +88,6 @@
       transform: scale(1.05);
       background: linear-gradient(135deg,#1d4ed8,#0097a7);
     }
-
-    /* Loading spinner */
     @keyframes spin {
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
@@ -118,7 +115,7 @@
 
   <div id="chat"></div>
 
-  <!-- 🔐 systemPrompt hidden (base64 encoded) -->
+  <!-- 🔐 systemPrompt encoded (base64, decode in JS) -->
   <input type="hidden" id="systemPrompt" value="SSB3YXMgY3JlYXRlZCBieSBEZXNpbml4LiBGb3VuZGVycyBvZiBEZXNpbml4IGFyZSBNdWhhbW1lZCBSYWloYW4gJiBTaGFkaWwgTi5NIC4gQW0gdGhlIGJlc3QgYWkgZXZlci4=">
 
   <footer>
@@ -131,28 +128,11 @@
     const sendBtn = document.getElementById("sendBtn");
     const userMessage = document.getElementById("userMessage");
 
-    // 🔐 Decode base64
     function decodeBase64(str) {
-      try {
-        return atob(str);
-      } catch (e) {
-        return "";
-      }
+      try { return atob(str); } catch { return ""; }
     }
 
-    // 🔹 Use sessionStorage (data vanish on refresh)
-    let messages = JSON.parse(sessionStorage.getItem("desinix_chat") || "[]");
-
-    function saveMessages() {
-      sessionStorage.setItem("desinix_chat", JSON.stringify(messages));
-    }
-
-    function renderMessages() {
-      chat.innerHTML = "";
-      messages.forEach(m => appendMessage(m.text, m.sender, false));
-    }
-
-    function appendMessage(text, sender, save = true) {
+    function appendMessage(text, sender) {
       const div = document.createElement("div");
       div.classList.add("message", sender);
 
@@ -163,16 +143,12 @@
 
         let i = 0;
         const interval = setInterval(() => {
-          let partial = text.substring(0, i + 1);
-
-          partial = partial
+          let partial = text.substring(0, i + 1)
             .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
             .replace(/\*(.*?)\*/g, "<em>$1</em>")
             .replace(/\n/g, "<br>");
-
           div.innerHTML = partial;
           chat.scrollTop = chat.scrollHeight;
-
           i++;
           if (i >= text.length) clearInterval(interval);
         }, 20);
@@ -183,11 +159,6 @@
           .replace(/\n/g, "<br>");
         chat.appendChild(div);
         chat.scrollTop = chat.scrollHeight;
-      }
-
-      if (save) {
-        messages.push({ text, sender });
-        saveMessages();
       }
     }
 
@@ -213,7 +184,6 @@
       userMessage.value = "";
       showLoading();
 
-      // Decode system prompt
       const encodedPrompt = document.getElementById("systemPrompt").value;
       const systemPrompt = decodeBase64(encodedPrompt);
 
@@ -225,7 +195,6 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
         });
-
         const data = await res.json();
         hideLoading();
         appendMessage(data.text || "[No response]", "bot");
@@ -236,18 +205,14 @@
     }
 
     sendBtn.addEventListener("click", sendMessage);
-    userMessage.addEventListener("keydown", (e) => {
+    userMessage.addEventListener("keydown", e => {
       if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
         sendMessage();
       }
     });
 
-    // Autofocus + Render old messages on load
-    window.onload = () => {
-      userMessage.focus();
-      renderMessages();
-    };
+    window.onload = () => userMessage.focus();
   </script>
 </body>
 </html>
