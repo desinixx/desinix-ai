@@ -3,7 +3,6 @@ const messagesEl = $("#messages");
 const inputEl = $("#userInput");
 const sendBtn = $("#sendBtn");
 const clearBtn = $("#clearBtn");
-const presetEl = $("#preset");
 const systemPromptEl = $("#systemPrompt");
 const exportBtn = $("#exportBtn");
 const deleteHistoryBtn = $("#deleteHistory");
@@ -46,14 +45,7 @@ async function send(){
   const text = inputEl.value.trim();
   if (!text) return;
 
-  let content = text;
-  const preset = presetEl.value;
-  if (preset === "Explain like I'm 5") content = `Explain like I'm five: ${text}`;
-  if (preset === "Bullet summary") content = `Summarize in bullet points: ${text}`;
-  if (preset === "Malayalam reply") content = `Malayalam response only: ${text}`;
-  if (preset === "Code helper") content = `You are a helpful coding assistant. ${text}`;
-
-  messages.push({ role: "user", content });
+  messages.push({ role: "user", content: text });
   inputEl.value = "";
   render(); save();
 
@@ -100,7 +92,6 @@ function renderHistory(){
     li.textContent = item.title;
     li.onclick = () => {
       currentThreadId = item.id;
-      // In this simple version, we keep one message list; extend to map id->messages if needed.
       render();
       save();
     };
@@ -142,3 +133,6 @@ deleteHistoryBtn.addEventListener("click", () => {
 if (!currentThreadId) newThread();
 render();
 renderHistory();
+
+// Auto focus on load
+window.onload = () => inputEl.focus();
