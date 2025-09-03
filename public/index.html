@@ -98,14 +98,6 @@
       border-radius: 50%;
       animation: spin 1s linear infinite;
     }
-
-    /* Bot fade-in */
-    @keyframes fadeIn {
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
   </style>
 </head>
 <body>
@@ -136,17 +128,26 @@
 
         let i = 0;
         const interval = setInterval(() => {
-          div.innerHTML += text.charAt(i)
-            .replace(/\n/g, "<br>")
-            .replace(/ /g, "&nbsp;");
-          i++;
+          // gradually add substring
+          let partial = text.substring(0, i + 1);
+
+          // apply markdown formatting
+          partial = partial
+            .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+            .replace(/\*(.*?)\*/g, "<em>$1</em>")
+            .replace(/\n/g, "<br>");
+
+          div.innerHTML = partial;
           chat.scrollTop = chat.scrollHeight;
+
+          i++;
           if (i >= text.length) clearInterval(interval);
-        }, 30); // typing speed (ms per character)
+        }, 15); // typing speed faster
       } else {
         div.innerHTML = text
           .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-          .replace(/\*(.*?)\*/g, "<strong>$1</strong>");
+          .replace(/\*(.*?)\*/g, "<em>$1</em>")
+          .replace(/\n/g, "<br>");
         chat.appendChild(div);
         chat.scrollTop = chat.scrollHeight;
       }
