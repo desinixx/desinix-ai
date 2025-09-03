@@ -118,7 +118,8 @@
 
   <div id="chat"></div>
 
-  <input type="hidden" id="systemPrompt" value="I was created by Desinix. Founders of Desinix are Muhammed Raihan & Shadil N.M . Am the best ai ever.">
+  <!-- 🔐 systemPrompt hidden (base64 encoded) -->
+  <input type="hidden" id="systemPrompt" value="SSB3YXMgY3JlYXRlZCBieSBEZXNpbml4LiBGb3VuZGVycyBvZiBEZXNpbml4IGFyZSBNdWhhbW1lZCBSYWloYW4gJiBTaGFkaWwgTi5NIC4gQW0gdGhlIGJlc3QgYWkgZXZlci4=">
 
   <footer>
     <textarea id="userMessage" rows="2" placeholder="Type your message..."></textarea>
@@ -130,11 +131,20 @@
     const sendBtn = document.getElementById("sendBtn");
     const userMessage = document.getElementById("userMessage");
 
-    // 🔹 Load old messages from localStorage
-    let messages = JSON.parse(localStorage.getItem("desinix_chat") || "[]");
+    // 🔐 Decode base64
+    function decodeBase64(str) {
+      try {
+        return atob(str);
+      } catch (e) {
+        return "";
+      }
+    }
+
+    // 🔹 Use sessionStorage (data vanish on refresh)
+    let messages = JSON.parse(sessionStorage.getItem("desinix_chat") || "[]");
 
     function saveMessages() {
-      localStorage.setItem("desinix_chat", JSON.stringify(messages));
+      sessionStorage.setItem("desinix_chat", JSON.stringify(messages));
     }
 
     function renderMessages() {
@@ -203,7 +213,10 @@
       userMessage.value = "";
       showLoading();
 
-      const systemPrompt = document.getElementById("systemPrompt").value;
+      // Decode system prompt
+      const encodedPrompt = document.getElementById("systemPrompt").value;
+      const systemPrompt = decodeBase64(encodedPrompt);
+
       const payload = { messages: [{ role: "user", content: text }], systemPrompt };
 
       try {
