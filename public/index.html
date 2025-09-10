@@ -108,15 +108,12 @@
       border-radius: 50%;
       animation: spin 1s linear infinite;
     }
-    #scrollDownBtn {
+    #scrollDownBtn, #stopBtn {
       position: fixed;
-      bottom: 80px;
-      right: 20px;
       width: 48px;
       height: 48px;
       border: none;
       border-radius: 50%;
-      background: linear-gradient(135deg, #4a90e2, #00bcd4);
       color: white;
       font-size: 20px;
       cursor: pointer;
@@ -126,9 +123,19 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.4);
       z-index: 1000;
     }
-    #scrollDownBtn:hover {
+    #scrollDownBtn {
+      bottom: 80px;
+      right: 20px;
+      background: linear-gradient(135deg, #4a90e2, #00bcd4);
+    }
+    #stopBtn {
+      bottom: 140px;
+      right: 20px;
+      background: linear-gradient(135deg, #e53935, #d81b60);
+    }
+    #scrollDownBtn:hover, #stopBtn:hover {
       transform: scale(1.05);
-      background: linear-gradient(135deg,#1d4ed8,#0097a7);
+      filter: brightness(1.2);
     }
   </style>
 </head>
@@ -146,12 +153,17 @@
   </footer>
 
   <button id="scrollDownBtn">↓</button>
+  <button id="stopBtn">■</button>
 
   <script>
     const chat = document.getElementById("chat");
     const sendBtn = document.getElementById("sendBtn");
     const userMessage = document.getElementById("userMessage");
     const scrollDownBtn = document.getElementById("scrollDownBtn");
+    const stopBtn = document.getElementById("stopBtn");
+
+    let currentTypingInterval = null;
+    let isGenerating = false;
 
     function decodeBase64(str) {
       try { return atob(str); } catch { return ""; }
@@ -167,7 +179,20 @@
         chat.scrollTop = chat.scrollHeight;
 
         let i = 0;
-        const interval = setInterval(() => {
+        isGenerating = true;
+        stopBtn.style.display = "flex"; // show stop button
+
+        currentTypingInterval = setInterval(() => {
+          if (!isGenerating) { // stop pressed
+            clearInterval(currentTypingInterval);
+            div.innerHTML = text
+              .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+              .replace(/\*(.*?)\*/g, "<em>$1</em>")
+              .replace(/\n/g, "<br>");
+            stopBtn.style.display = "none";
+            return;
+          }
+
           let partial = text.substring(0, i + 1)
             .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
             .replace(/\*(.*?)\*/g, "<em>$1</em>")
@@ -175,7 +200,11 @@
           div.innerHTML = partial;
           chat.scrollTop = chat.scrollHeight;
           i++;
-          if (i >= text.length) clearInterval(interval);
+          if (i >= text.length) {
+            clearInterval(currentTypingInterval);
+            stopBtn.style.display = "none";
+            isGenerating = false;
+          }
         }, 20);
       } else {
         div.innerHTML = text
@@ -244,6 +273,10 @@
 
     scrollDownBtn.addEventListener("click", () => {
       chat.scrollTo({ top: chat.scrollHeight, behavior: "smooth" });
+    });
+
+    stopBtn.addEventListener("click", () => {
+      isGenerating = false;
     });
 
     window.onload = () => userMessage.focus();
