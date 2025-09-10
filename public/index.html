@@ -81,7 +81,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 12px rgba(0,0,0,.4);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
       transition: 0.2s;
     }
     button:hover {
@@ -108,6 +108,28 @@
       border-radius: 50%;
       animation: spin 1s linear infinite;
     }
+    #scrollDownBtn {
+      position: fixed;
+      bottom: 80px;
+      right: 20px;
+      width: 48px;
+      height: 48px;
+      border: none;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #4a90e2, #00bcd4);
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      z-index: 1000;
+    }
+    #scrollDownBtn:hover {
+      transform: scale(1.05);
+      background: linear-gradient(135deg,#1d4ed8,#0097a7);
+    }
   </style>
 </head>
 <body>
@@ -115,7 +137,7 @@
 
   <div id="chat"></div>
 
-  <!-- 🔐 systemPrompt encoded (base64, decode in JS) -->
+  <!-- 🔐 systemPrompt encoded -->
   <input type="hidden" id="systemPrompt" value="SSB3YXMgY3JlYXRlZCBieSBEZXNpbml4LiBGb3VuZGVycyBvZiBEZXNpbml4IGFyZSBNdWhhbW1lZCBSYWloYW4gJiBTaGFkaWwgTi5NIC4gQW0gdGhlIGJlc3QgYWkgZXZlci4=">
 
   <footer>
@@ -123,10 +145,13 @@
     <button id="sendBtn">➤</button>
   </footer>
 
+  <button id="scrollDownBtn">↓</button>
+
   <script>
     const chat = document.getElementById("chat");
     const sendBtn = document.getElementById("sendBtn");
     const userMessage = document.getElementById("userMessage");
+    const scrollDownBtn = document.getElementById("scrollDownBtn");
 
     function decodeBase64(str) {
       try { return atob(str); } catch { return ""; }
@@ -210,6 +235,15 @@
         e.preventDefault();
         sendMessage();
       }
+    });
+
+    chat.addEventListener("scroll", () => {
+      const nearBottom = chat.scrollHeight - chat.scrollTop - chat.clientHeight < 100;
+      scrollDownBtn.style.display = nearBottom ? "none" : "flex";
+    });
+
+    scrollDownBtn.addEventListener("click", () => {
+      chat.scrollTo({ top: chat.scrollHeight, behavior: "smooth" });
     });
 
     window.onload = () => userMessage.focus();
