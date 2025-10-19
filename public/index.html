@@ -88,10 +88,7 @@
       transform: scale(1.05);
       background: linear-gradient(135deg,#1d4ed8,#0097a7);
     }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     .loading {
       display: flex;
       align-items: center;
@@ -123,29 +120,17 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.4);
       z-index: 1000;
     }
-    #scrollDownBtn {
-      bottom: 80px;
-      right: 20px;
-      background: linear-gradient(135deg, #4a90e2, #00bcd4);
-    }
-    #stopBtn {
-      bottom: 140px;
-      right: 20px;
-      background: linear-gradient(135deg, #e53935, #d81b60);
-    }
-    #scrollDownBtn:hover, #stopBtn:hover {
-      transform: scale(1.05);
-      filter: brightness(1.2);
-    }
+    #scrollDownBtn { bottom: 80px; right: 20px; background: linear-gradient(135deg, #4a90e2, #00bcd4); }
+    #stopBtn { bottom: 140px; right: 20px; background: linear-gradient(135deg, #e53935, #d81b60); }
+    #scrollDownBtn:hover, #stopBtn:hover { transform: scale(1.05); filter: brightness(1.2); }
   </style>
 </head>
 <body>
   <header>Desinix AI</header>
 
   <div id="chat"></div>
-
-  <!-- 🔐 systemPrompt encoded -->
-  <input type="hidden" id="systemPrompt" value="SSB3YXMgY3JlYXRlZCBieSBEZXNpbml4LiBGb3VuZGVycyBvZiBEZXNpbml4IGFyZSBNdWhhbW1lZCBSYWloYW4gJiBTaGFkaWwgTi5NIC4gQW0gdGhlIGJlc3QgYWkgZXZlci4=">
+  <input type="hidden" id="systemPrompt"
+    value="SSB3YXMgY3JlYXRlZCBieSBEZXNpbml4LiBGb3VuZGVycyBvZiBEZXNpbml4IGFyZSBNdWhhbW1lZCBSYWloYW4gJiBTaGFkaWwgTi5NIC4gQW0gdGhlIGJlc3QgYWkgZXZlci4=">
 
   <footer>
     <textarea id="userMessage" rows="2" placeholder="Type your message..."></textarea>
@@ -180,19 +165,15 @@
 
         let i = 0;
         isGenerating = true;
-        stopBtn.style.display = "flex"; // show stop button
+        stopBtn.style.display = "flex";
 
         currentTypingInterval = setInterval(() => {
-          if (!isGenerating) { // stop pressed
+          if (!isGenerating) {
             clearInterval(currentTypingInterval);
-            div.innerHTML = text
-              .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-              .replace(/\*(.*?)\*/g, "<em>$1</em>")
-              .replace(/\n/g, "<br>");
+            div.innerHTML = text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>").replace(/\*(.*?)\*/g, "<em>$1</em>").replace(/\n/g, "<br>");
             stopBtn.style.display = "none";
             return;
           }
-
           let partial = text.substring(0, i + 1)
             .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
             .replace(/\*(.*?)\*/g, "<em>$1</em>")
@@ -207,10 +188,7 @@
           }
         }, 20);
       } else {
-        div.innerHTML = text
-          .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-          .replace(/\*(.*?)\*/g, "<em>$1</em>")
-          .replace(/\n/g, "<br>");
+        div.innerHTML = text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>").replace(/\*(.*?)\*/g, "<em>$1</em>").replace(/\n/g, "<br>");
         chat.appendChild(div);
         chat.scrollTop = chat.scrollHeight;
       }
@@ -275,9 +253,7 @@
       chat.scrollTo({ top: chat.scrollHeight, behavior: "smooth" });
     });
 
-    stopBtn.addEventListener("click", () => {
-      isGenerating = false;
-    });
+    stopBtn.addEventListener("click", () => { isGenerating = false; });
 
     window.onload = () => userMessage.focus();
   </script>
